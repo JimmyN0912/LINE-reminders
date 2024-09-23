@@ -11,12 +11,12 @@ webhook_url = os.getenv('MAKE_WEBHOOK_URL')
 # Dictionary mapping weekdays to subject names
 weekday_subjects = {
     0: '   機器人/生物 \n   機器人/生物 \n   國文 \n   數學 \n   英文作文 \n   英文作文 \n   自然充實 \n   數學',       # Monday
-    1: '   數學 \n   物理 \n   化學 \n   化學 \n   體育 \n   數學 \n   國文 \n   國文',    # Tuesday
+    1: '   數學 \n   佑軒美人魚 \n   化學 \n   化學 \n   體育 \n   數學 \n   國文 \n   國文',    # Tuesday
     2: '   國文 \n   全民國防教育 \n   英文 \n   化學 \n   班會 \n   團體活動 \n   地科 \n   化學',    # Wednesday
     3: '   家政 \n   家政 \n   本土語 \n   物理 \n   國文 \n   健康與護理 \n   數學 \n   英文',        # Thursday
     4: '   進階程設/生物 \n   進階程設/生物 \n   英文 \n   體育 \n   國文 \n   物理 \n   數學 \n   物理', # Friday
-    5: '   不用上課！',      # Saturday
-    6: '   不用上課！'    # Sunday
+    5: '   不用上課！滾去讀書吧哈哈',      # Saturday
+    6: '   不用上課！啊明天要上課喔笑死'    # Sunday
 }
 
 def read_csv(file_path):
@@ -34,14 +34,10 @@ def is_event_tomorrow(event_date):
     tomorrow = today + datetime.timedelta(days=1)
     return event_date.date() == tomorrow.date()
 
-def is_event_within_week(event_date):
+def is_event_in_3_days(event_date):
     today = datetime.datetime.now()
-    if today.weekday() == 6:  # If today is Sunday
-        start_of_week = today
-    else:
-        start_of_week = today - datetime.timedelta(days=today.weekday() + 1)  # Most recent Sunday
-    end_of_week = start_of_week + datetime.timedelta(days=6)  # Upcoming Saturday
-    return start_of_week.date() <= event_date.date() <= end_of_week.date()
+    three_days_later = today + datetime.timedelta(days=3)
+    return event_date.date() == three_days_later.date()
 
 def call_webhook(payload):
     response = requests.post(webhook_url, json=payload)
@@ -53,7 +49,7 @@ def call_webhook(payload):
 def check_events(csv_file_path):
     events = read_csv(csv_file_path)
     reminders_tomorrow = []
-    reminders_week = []
+    reminders_3days = []
 
     today = datetime.datetime.now()
     tomorrow = today + datetime.timedelta(days=1)
@@ -62,17 +58,22 @@ def check_events(csv_file_path):
     for event in events:
         if is_event_tomorrow(event['date']):
             reminders_tomorrow.append(f"{event['name']} (日期: {event['date'].strftime('%Y-%m-%d')})")
-        if is_event_within_week(event['date']):
-            reminders_week.append(f"{event['name']} (日期: {event['date'].strftime('%Y-%m-%d')})")
+        elif is_event_in_3_days(event['date']):
+            reminders_3days.append(f"{event['name']} (日期: {event['date'].strftime('%Y-%m-%d')})")
 
     # Number the reminders and join with newline characters
     reminders_tomorrow = "\n".join([f"   {i+1}. {reminder}" for i, reminder in enumerate(reminders_tomorrow)])
-    reminders_week = "\n".join([f"   {i+1}. {reminder}" for i, reminder in enumerate(reminders_week)])
+    reminders_3days = "\n".join([f"   {i+1}. {reminder}" for i, reminder in enumerate(reminders_3days)])
+
+    if reminders_tomorrow == "":
+        reminders_tomorrow = "明天沒有任何提醒事項！"
+    if reminders_3days == "":
+        reminders_3days = "三天內沒有任何提醒事項！"
 
     payload = {
         'classes_tomorrow': classes_tomorrow,
         'reminders_tomorrow': reminders_tomorrow,
-        'reminders_week': reminders_week
+        'reminders_week': reminders_3days
     }
     call_webhook(payload)
 
