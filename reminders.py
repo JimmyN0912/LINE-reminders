@@ -37,7 +37,7 @@ def is_event_tomorrow(event_date):
 def is_event_in_3_days(event_date):
     today = datetime.datetime.now()
     three_days_later = today + datetime.timedelta(days=3)
-    return event_date.date() == three_days_later.date()
+    return today.date() < event_date.date() <= three_days_later.date()
 
 def call_webhook(payload):
     response = requests.post(webhook_url, json=payload)
