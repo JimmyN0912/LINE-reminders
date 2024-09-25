@@ -1,4 +1,6 @@
 import os.path
+from dotenv import load_dotenv
+import os
 import csv
 
 from google.auth.transport.requests import Request
@@ -10,9 +12,11 @@ from googleapiclient.errors import HttpError
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
-# The ID and range of a sample spreadsheet.
-SAMPLE_SPREADSHEET_ID = "1614K22AGj6xEkVrzU4j5kxFrOgE-mGeSy3lDM8Y1r98"
-SAMPLE_RANGE_NAME = "Sheet2!A2:B"
+load_dotenv()
+
+# The ID and range of the spreadsheet.
+SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
+RANGE_NAME = "Sheet2!A2:B"
 
 
 def main():
@@ -21,8 +25,7 @@ def main():
   """
   creds = None
   # The file token.json stores the user's access and refresh tokens, and is
-  # created automatically when the authorization flow completes for the first
-  # time.
+  # created automatically when the authorization flow completes for the first time.
   if os.path.exists("token.json"):
     creds = Credentials.from_authorized_user_file("token.json", SCOPES)
   # If there are no (valid) credentials available, let the user log in.
@@ -45,7 +48,7 @@ def main():
     sheet = service.spreadsheets()
     result = (
         sheet.values()
-        .get(spreadsheetId=SAMPLE_SPREADSHEET_ID, range=SAMPLE_RANGE_NAME)
+        .get(spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME)
         .execute()
     )
     values = result.get("values", [])
