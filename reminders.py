@@ -26,7 +26,8 @@ def read_csv(file_path):
         for row in reader:
             event_name = row['Event name'].strip()
             event_date = datetime.datetime.strptime(row['Event date and time'].strip(), '%m/%d/%Y %H:%M:%S')
-            events.append({'name': event_name, 'date': event_date})
+            event_weekday = row['Weekday'].strip()
+            events.append({'name': event_name, 'date': event_date, 'weekday': event_weekday})
     return events
 
 def is_event_tomorrow(event_date):
@@ -57,9 +58,9 @@ def check_events(csv_file_path):
 
     for event in events:
         if is_event_tomorrow(event['date']):
-            reminders_tomorrow.append(f"{event['name']} (日期: {event['date'].strftime('%Y-%m-%d')})")
+            reminders_tomorrow.append(f"{event['name']}")
         elif is_event_in_3_days(event['date']):
-            reminders_3days.append(f"{event['name']} (日期: {event['date'].strftime('%Y-%m-%d')})")
+            reminders_3days.append(f"{event['name']} ({event['weekday']})")
 
     # Number the reminders and join with newline characters
     reminders_tomorrow = "\n".join([f"   {i+1}. {reminder}" for i, reminder in enumerate(reminders_tomorrow)])

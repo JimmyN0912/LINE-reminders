@@ -16,7 +16,7 @@ load_dotenv()
 
 # The ID and range of the spreadsheet.
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
-RANGE_NAME = "Sheet2!A2:B"
+RANGE_NAME = "Sheet2!A2:C"
 
 
 def main():
@@ -59,9 +59,9 @@ def main():
     try:
       with open("C:\\Share\\Reminders.csv", mode="w", encoding="UTF-8", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["Event name", "Event date and time"])
+        writer.writerow(["Event name", "Event date and time", "Weekday"])
         for row in values:
-          writer.writerow([row[0], row[1]])
+          writer.writerow([row[0], row[1], row[2]])
     except Exception as e:
         print(e)
   except HttpError as err:
