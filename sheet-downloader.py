@@ -1,4 +1,3 @@
-import os.path
 from dotenv import load_dotenv
 import os
 import csv
@@ -16,13 +15,10 @@ load_dotenv()
 
 # The ID and range of the spreadsheet.
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
-RANGE_NAME = "Sheet2!A2:C"
+RANGE_NAME = "A2:E"
 
 
 def main():
-  """Shows basic usage of the Sheets API.
-  Prints values from a sample spreadsheet.
-  """
   creds = None
   # The file token.json stores the user's access and refresh tokens, and is
   # created automatically when the authorization flow completes for the first time.
@@ -61,7 +57,7 @@ def main():
         writer = csv.writer(file)
         writer.writerow(["Event name", "Event date and time", "Weekday"])
         for row in values:
-          writer.writerow([row[0], row[1], row[2]])
+          writer.writerow([row[0], row[3], row[4]])
     except Exception as e:
         print(e)
   except HttpError as err:

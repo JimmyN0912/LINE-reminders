@@ -40,6 +40,11 @@ def is_event_in_3_days(event_date):
     three_days_later = today + datetime.timedelta(days=3)
     return today.date() < event_date.date() <= three_days_later.date()
 
+def is_event_on_next_monday(event_date):
+    today = datetime.datetime.now()
+    monday = today + datetime.timedelta(days=(7 - today.weekday()))
+    return event_date.date() == monday.date()
+
 def call_webhook(payload):
     response = requests.post(webhook_url, json=payload)
     if response.status_code == 200:
@@ -51,12 +56,15 @@ def check_events(csv_file_path):
     events = read_csv(csv_file_path)
     reminders_tomorrow = []
     reminders_3days = []
+    reminders_monday=[]
 
     today = datetime.datetime.now()
     tomorrow = today + datetime.timedelta(days=1)
     classes_tomorrow = weekday_subjects[tomorrow.weekday()]
 
     for event in events:
+        if is_event_on_next_monday(event['date']):
+            reminders_monday.append(f"{event['name']}")
         if is_event_tomorrow(event['date']):
             reminders_tomorrow.append(f"{event['name']}")
         elif is_event_in_3_days(event['date']):
@@ -65,6 +73,7 @@ def check_events(csv_file_path):
     # Number the reminders and join with newline characters
     reminders_tomorrow = "\n".join([f"   {i+1}. {reminder}" for i, reminder in enumerate(reminders_tomorrow)])
     reminders_3days = "\n".join([f"   {i+1}. {reminder}" for i, reminder in enumerate(reminders_3days)])
+    reminders_monday = "\n".join([f"   {i+1}. {reminder}" for i, reminder in enumerate(reminders_monday)])
 
     if reminders_tomorrow == "":
         reminders_tomorrow = "明天沒有任何提醒事項！"
@@ -74,7 +83,8 @@ def check_events(csv_file_path):
     payload = {
         'classes_tomorrow': classes_tomorrow,
         'reminders_tomorrow': reminders_tomorrow,
-        'reminders_week': reminders_3days
+        'reminders_week': reminders_3days,
+        'reminders_monday': reminders_monday if today.weekday() == 4 else "None"
     }
     call_webhook(payload)
 
