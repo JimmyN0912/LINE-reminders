@@ -15,7 +15,7 @@ load_dotenv()
 
 # The ID and range of the spreadsheet.
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
-RANGE_NAME = "A2:E"
+RANGE_NAME = "Sheet1!A4:E"
 
 
 def main():
