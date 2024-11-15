@@ -108,11 +108,16 @@ def check_events(csv_file_path):
     if reminders_3days == "":
         reminders_3days = "三天內沒有任何提醒事項！"
 
+    days_until_test = (datetime.datetime(2025, 1, 18) - today).days
+    weeks_until_test = days_until_test // 7
+
     payload = {
         'classes_tomorrow': classes_tomorrow,
         'reminders_tomorrow': reminders_tomorrow,
         'reminders_week': reminders_3days,
-        'reminders_monday': reminders_monday if today.weekday() == 4 else "None"
+        'reminders_monday': reminders_monday if today.weekday() == 4 else "None",
+        'days_til_test': days_until_test,
+        'weeks_til_test': weeks_until_test
     }
     call_webhook(payload)
 
@@ -122,7 +127,7 @@ def check_events(csv_file_path):
     # Save metrics to a JSON file with timestamp
     metrics = {
         'timestamp': today.isoformat(),
-        'reminders_tomorrow_count': len(reminders_tomorrow.split('\n')),
+        'reminders_tomorrow_count': len(reminders_tomorrow.split('\n')) if reminders_tomorrow != "明天沒有任何提醒事項！" else 0,
         'reminders_3days_count': len(reminders_3days.split('\n')) if reminders_3days != "三天內沒有任何提醒事項！" else 0,
         'total_reminders_count': len(events),
         'execution_time': end_time - start_time,
